@@ -237,15 +237,16 @@
                                                     <Run Text="{DynamicResource String.Clips}" />
                                                 </TextBlock>
                                             </TabItem.Header>
-                                            <DockPanel>
-                                                <Button DockPanel.Dock="Bottom"
-                                                        Command="{Binding ExportAllCommand}"
-                                                        HorizontalAlignment="Stretch"
-                                                        ToolTip.Tip="{DynamicResource String.ExportAllTip}"
-                                                        Margin="0,2,0,0">
-                                                    <TextBlock Text="{DynamicResource String.ExportAll}" />
-                                                </Button>
-                                                <Grid>
+<DockPanel>
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,2,0,0" Spacing="4">
+        <CheckBox Content="合併輸出為單一影片" IsChecked="{Binding MergeClipsEnabled}" />
+        <Button Command="{Binding ExportAllCommand}"
+                HorizontalAlignment="Stretch"
+                ToolTip.Tip="{DynamicResource String.ExportAllTip}">
+            <TextBlock Text="{DynamicResource String.ExportAll}" />
+        </Button>
+    </StackPanel>
+    <Grid>
                                                     <!-- Empty state -->
                                                     <TextBlock Text="{DynamicResource String.Clips.Empty}"
                                                                HorizontalAlignment="Center"
