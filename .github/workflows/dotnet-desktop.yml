@@ -16,11 +16,11 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x # TSCutter 通常使用 .NET 8 或 6，這裡設 8 向下相容
+        dotnet-version: 8.0.x 
 
     - name: Publish / 編譯成單一檔案
-      # 針對 Windows x64 架構編譯，並打包成單一執行檔 (方便你直接使用)
-      run: dotnet publish TSCutter.GUI/TSCutter.GUI.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish_output
+      # 移除指定的路徑，讓 .NET 自動在根目錄尋找 .sln 或 .csproj 檔案並編譯
+      run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish_output
 
     - name: Upload Artifact / 上傳編譯結果
       uses: actions/upload-artifact@v4
