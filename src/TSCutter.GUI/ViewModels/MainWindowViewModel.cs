@@ -68,8 +68,12 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
     
-    [ObservableProperty]
+[ObservableProperty]
     private ObservableCollection<MenuItem> _themeMenuItems = new();
+
+    // 接收 UI 介面上「合併為單一影片」打勾選項的變數
+    [ObservableProperty]
+    public partial bool MergeClipsEnabled { get; set; } = false;
 
     [ObservableProperty]
     public partial ObservableCollection<PickedClip> Clips { get; set; } = new();
