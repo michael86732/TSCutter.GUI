@@ -674,6 +674,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand(CanExecute = nameof(CanExportAll))]
+[RelayCommand(CanExecute = nameof(CanExportAll))]
     private async Task ExportAllAsync()
     {
         var sourceDir = Path.GetDirectoryName(Clips[0].InFileInfo.FullName)!;
@@ -704,6 +705,56 @@ public partial class MainWindowViewModel : ViewModelBase
             else if (Clips[i].ExportStatus == ClipExportStatus.Exporting)
             {
                 Clips[i].ExportStatus = ClipExportStatus.Cancelled;
+            }
+        }
+
+        // ==========================================
+        // 新增：如果使用者有勾選合併，而且成功匯出的片段大於1個
+        // ==========================================
+        if (MergeClipsEnabled && completedSet.Count > 1)
+        {
+            try
+            {
+                // 1. 取得所有成功匯出的檔案路徑 (依照順序)
+                var exportedFiles = new List<string>();
+                foreach (var index in completedSet.OrderBy(i => i))
+                {
+                    exportedFiles.Add(tasks[index].DestinationPath);
+                }
+
+                if (exportedFiles.Count > 1)
+                {
+                    var firstFile = exportedFiles[0];
+                    var directory = Path.GetDirectoryName(firstFile);
+                    var sourceName = Path.GetFileNameWithoutExtension(Clips[0].InFileInfo.FullName);
+                    // 決定合併後的新檔名
+                    var mergedFilePath = Path.Combine(directory!, $"{sourceName}_Merged_AllClips.ts");
+
+                    // 2. 利用二進位拼接所有的 TS 片段
+                    using (var outputStream = new FileStream(mergedFilePath, FileMode.Create))
+                    {
+                        foreach (var file in exportedFiles)
+                        {
+                            using (var inputStream = new FileStream(file, FileMode.Open, FileAccess.Read))
+                            {
+                                inputStream.CopyTo(outputStream);
+                            }
+                        }
+                    }
+
+                    // 3. 合併成功後，刪除原本零碎的片段
+                    foreach (var file in exportedFiles)
+                    {
+                        File.Delete(file);
+                    }
+
+                    // 4. 跳出提示視窗告知使用者合併成功
+                    await ShowMessageAsync($"所有的片段已成功合併為單一影片：\n{mergedFilePath}", "合併完成", MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                await ShowMessageAsync($"片段合併過程中發生錯誤：{ex.Message}", "合併失敗", MessageBoxIcon.Error);
             }
         }
     }
